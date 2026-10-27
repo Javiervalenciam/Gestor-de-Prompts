@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Gestor de Prompts AI v6 - Material Design</title>
+    <meta name="theme-color" content="#F8FAFC">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+    <!-- Fonts: Roboto + Inter (Modern for animations) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;700&family=Google+Sans:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="estilos.css">
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+    <div id="appStatus" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    <header class="header header-minimal">
+        <div class="header-content">
+            <!-- Logo removed as requested -->
+            <button type="button" id="themeToggle" class="btn btn-icon" title="Cambiar tema" aria-label="Cambiar a modo oscuro" aria-pressed="false">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section with Block Reveal Animation - INTEGRATED HEADER -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <div class="reveal-text-container">
+                <div class="reveal-text">
+                    <span class="reveal-block"></span>
+                    <h1 class="hero-title">Gestor de Prompts</h1>
+                </div>
+                <div class="reveal-text reveal-text-delay">
+                    <span class="reveal-block reveal-block-secondary"></span>
+                    <h2 class="hero-subtitle">AI v6</h2>
+                </div>
+            </div>
+            <p class="hero-tagline">Crea, organiza y optimiza tus prompts con estilo</p>
+
+            <!-- Navegación integrada dentro del hero -->
+            <nav class="nav-tabs" aria-label="Secciones principales">
+                <a href="#" id="tabLibrary" class="nav-tab active" data-section="promptLibrarySection">
+                    <i class="fas fa-book-open"></i>
+                    <span>Biblioteca</span>
+                </a>
+                <a href="#" id="tabCreate" class="nav-tab" data-section="createPromptSection">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Crear Prompt</span>
+                </a>
+                <a href="#" id="tabManage" class="nav-tab" data-section="manageTagsCategoriesSection">
+                    <i class="fas fa-cogs"></i>
+                    <span>Gestionar</span>
+                </a>
+                <a href="#" id="tabGuide" class="nav-tab" data-section="exampleGuideSection">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Guía</span>
+                </a>
+                <a href="#" id="tabTemplates" class="nav-tab" data-section="templatesSection">
+                    <i class="fa-solid fa-shapes"></i>
+                    <span>Plantillas</span>
+                </a>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Contenedor principal -->
+    <main id="main-content" class="main-container" tabindex="-1">
+
+        <!-- Recordatorio de backup -->
+        <div id="backupReminder" class="card card-warning" style="display: none;">
+            <div class="flex items-center gap-md">
+                <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem;"></i>
+                <div style="flex: 1;">
+                    <h3 style="margin: 0; font-weight: 600;">Recordatorio de Backup</h3>
+                    <p style="margin: 0.25rem 0 0 0;">Han pasado más de 14 días desde tu última exportación. Te
+                        recomendamos hacer un backup.</p>
+                </div>
+                <button id="backupExportBtn" class="btn btn-warning">
+                    <i class="fas fa-download"></i>
+                    Exportar Ahora
+                </button>
+            </div>
+        </div>
+
+        <!-- Sección Biblioteca -->
+        <section id="promptLibrarySection" class="section active">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-book-open"></i>
+                        Biblioteca de Prompts
+                    </h2>
+                    <div class="flex gap-sm">
+                        <button id="importBtn" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-upload"></i>
+                            Importar
+                        </button>
+                        <button id="exportSelectedBtn" class="btn btn-info btn-sm" disabled>
+                            <i class="fas fa-download"></i>
+                            Exportar Seleccionados
+                        </button>
+                        <button id="exportAllBtn" class="btn btn-success btn-sm">
+                            <i class="fas fa-download"></i>
+                            Exportar Todo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filtros mejorados -->
+                <div class="filters-container">
+                    <div class="filters-grid">
+                        <div class="form-group">
+                            <label for="searchLibraryInput" class="form-label">
+                                <i class="fas fa-search"></i>
+                                Buscar
+                            </label>
+                            <input type="text" id="searchLibraryInput" class="form-input"
+                                name="searchLibrary" autocomplete="off" placeholder="Buscar prompts…">
+                        </div>
+                        <div class="form-group">
+                            <label for="filterCategory" class="form-label">
+                                <i class="fas fa-folder"></i>
+                                Categoría
+                            </label>
+                            <select id="filterCategory" name="filterCategory" class="form-select">
+                                <option value="">Todas las categorías</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filterTag" class="form-label">
+                                <i class="fas fa-tag"></i>
+                                Etiqueta
+                            </label>
+                            <select id="filterTag" name="filterTag" class="form-select" disabled>
+                                <option value="">Selecciona una categoría primero</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filterMunicipio" class="form-label">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Municipio
+                            </label>
+                            <select id="filterMunicipio" name="filterMunicipio" class="form-select">
+                                <option value="">Todos los municipios</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="filters-actions">
+                        <div class="flex items-center gap-md">
+                            <label class="flex items-center gap-sm">
+                                <input type="checkbox" id="filterFavorite" name="filterFavorite" style="margin: 0;">
+                                <span>Solo favoritos</span>
+                            </label>
+                        </div>
+                        <div class="flex items-center gap-md">
+                            <label for="sortLibrarySelect" class="form-label" style="margin: 0;">Ordenar por:</label>
+                            <select id="sortLibrarySelect" name="sortLibrary" class="form-select" style="width: auto;">
+                                <option value="date_desc">Fecha (más reciente)</option>
+                                <option value="date_asc">Fecha (más antiguo)</option>
+                                <option value="name_asc">Nombre (A-Z)</option>
+                                <option value="name_desc">Nombre (Z-A)</option>
+                                <option value="rating_desc">Calificación (alta)</option>
+                                <option value="rating_asc">Calificación (baja)</option>
+                            </select>
+                            <button id="clearFiltersBtn" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-times"></i>
+                                Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de prompts -->
+                <div id="libraryList" class="grid library-grid">
+                    <!-- Los prompts se cargarán aquí dinámicamente -->
+                </div>
+
+                <!-- Paginación -->
+                <div id="libraryPagination" class="pagination">
+                    <!-- La paginación se cargará aquí dinámicamente -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección Crear/Editar -->
+        <section id="createPromptSection" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-plus-circle"></i>
+                        Crear/Editar Prompt
+                    </h2>
+                    <div id="autosave-status" style="font-size: 0.875rem; color: var(--text-muted);"></div>
+                </div>
+
+                <form id="promptBuilderForm">
+                    <input type="hidden" id="promptId">
+
+                    <!-- Información básica -->
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--spacing-lg); margin-bottom: var(--spacing-xl);">
+                        <div class="form-group">
+                            <label for="promptName" class="form-label">
+                                <i class="fas fa-tag"></i>
+                                Nombre del Prompt *
+                            </label>
+                            <input type="text" id="promptName" name="promptName" class="form-input" required autocomplete="off"
+                                placeholder="Ej: Generador de emails profesionales">
+                        </div>
+                        <div class="form-group">
+                            <label for="promptCategory" class="form-label">
+                                <i class="fas fa-folder"></i>
+                                Categoría
+                            </label>
+                            <input type="text" id="promptCategory" name="promptCategory" class="form-input" list="categoryOptions" autocomplete="off"
+                                placeholder="Ej: Marketing, Programación, Redacción">
+                            <datalist id="categoryOptions"></datalist>
+                        </div>
+                    </div>
+
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--spacing-lg); margin-bottom: var(--spacing-xl);">
+                        <div class="form-group">
+                            <label for="promptTags" class="form-label">
+                                <i class="fas fa-tags"></i>
+                                Etiquetas
+                            </label>
+                            <div id="tagsPills" class="tags-pills" data-input="promptTags"></div>
+                            <input type="text" id="promptTags" name="promptTags" class="form-input tags-input" autocomplete="off"
+                                placeholder="Escribe una etiqueta y presiona Enter o ,">
+                        </div>
+                        <div class="form-group">
+                            <label for="promptMunicipio" class="form-label">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Municipio
+                            </label>
+                            <select id="promptMunicipio" name="promptMunicipio" class="form-select">
+                                <option value="">Selecciona un municipio</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Rating y favorito -->
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-lg); margin-bottom: var(--spacing-xl);">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-star"></i>
+                                Calificación
+                            </label>
+                            <div class="flex items-center gap-md">
+                                <div id="promptRating" class="rating">
+                                    <i class="fas fa-star" data-value="1"></i>
+                                    <i class="fas fa-star" data-value="2"></i>
+                                    <i class="fas fa-star" data-value="3"></i>
+                                    <i class="fas fa-star" data-value="4"></i>
+                                    <i class="fas fa-star" data-value="5"></i>
+                                </div>
+                                <input type="hidden" id="promptRatingValue" value="0">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-heart"></i>
+                                Favorito
+                            </label>
+                            <div class="flex items-center gap-sm">
+                                <input type="checkbox" id="promptFavorite" name="promptFavorite" class="hidden">
+                                <i id="promptFavoriteIcon" class="far fa-heart favorite-toggle"
+                                    style="font-size: 1.5rem; color: var(--text-muted);"></i>
+                                <span style="color: var(--text-muted);">Marcar como favorito</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Componentes del prompt -->
+                    <div style="display: grid; gap: var(--spacing-lg); margin-bottom: var(--spacing-xl);">
+                        <div class="form-group">
+                            <label for="promptRole" class="form-label"
+                                style="display:flex; align-items:center; gap:8px; justify-content: space-between;">
+                                <i class="fas fa-user-tie"></i>
+                                Rol/Perspectiva
+                                <button type="button" id="roleTemplatePickerBtn" class="btn btn-icon btn-sm hidden"
+                                    title="Insertar desde plantillas">
+                                    <i class="fas fa-shapes"></i>
+                                </button>
+                            </label>
+                            <textarea id="promptRole" name="promptRole" class="form-textarea auto-resize"
+                                placeholder="Ej: Actúa como un experto en marketing digital con 10 años de experiencia..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="promptContext" class="form-label">
+                                <i class="fas fa-info-circle"></i>
+                                Contexto
+                            </label>
+                            <textarea id="promptContext" name="promptContext" class="form-textarea auto-resize"
+                                placeholder="Proporciona el contexto o situación específica..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="promptTask" class="form-label">
+                                <i class="fas fa-tasks"></i>
+                                Tarea *
+                            </label>
+                            <textarea id="promptTask" name="promptTask" class="form-textarea auto-resize" required
+                                placeholder="Define claramente qué quieres que haga la IA..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="promptFormat" class="form-label">
+                                <i class="fas fa-list-alt"></i>
+                                Formato de Salida
+                            </label>
+                            <textarea id="promptFormat" name="promptFormat" class="form-textarea auto-resize"
+                                placeholder="Especifica el formato deseado (lista, párrafos, tabla, etc.)"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="promptTone" class="form-label"
+                                style="display:flex; align-items:center; gap:8px; justify-content: space-between;">
+                                <i class="fas fa-comment-dots"></i>
+                                Tono/Estilo
+                                <button type="button" id="toneTemplatePickerBtn" class="btn btn-icon btn-sm hidden"
+                                    title="Insertar desde plantillas">
+                                    <i class="fas fa-shapes"></i>
+                                </button>
+                            </label>
+                            <textarea id="promptTone" name="promptTone" class="form-textarea auto-resize"
+                                placeholder="Define el tono (formal, casual, persuasivo, etc.)"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="promptConstraints" class="form-label"
+                                style="display:flex; align-items:center; gap:8px; justify-content: space-between;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Restricciones/Limitaciones
+                                <button type="button" id="constraintTemplatePickerBtn"
+                                    class="btn btn-icon btn-sm hidden" title="Insertar desde plantillas">
+                                    <i class="fas fa-shapes"></i>
+                                </button>
+                            </label>
+                            <textarea id="promptConstraints" name="promptConstraints" class="form-textarea auto-resize"
+                                placeholder="Especifica limitaciones, longitud, qué evitar, etc."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="promptExample" class="form-label">
+                                <i class="fas fa-lightbulb"></i>
+                                Ejemplo
+                            </label>
+                            <textarea id="promptExample" name="promptExample" class="form-textarea auto-resize"
+                                placeholder="Proporciona un ejemplo de la salida esperada"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Prompt final generado -->
+                    <div class="form-group" style="margin-bottom: var(--spacing-xl);">
+                        <div class="flex justify-between items-center mb-sm">
+                            <label class="form-label">
+                                <i class="fas fa-magic"></i>
+                                Prompt Final Generado
+                            </label>
+                            <div class="flex gap-sm">
+                                <button type="button" id="generatePromptBtn" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-sync-alt"></i>
+                                    Generar/Actualizar
+                                </button>
+                                <button type="button" id="copyPromptBtn" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-copy"></i>
+                                    Copiar
+                                </button>
+                            </div>
+                        </div>
+                        <div id="promptFinalDisplay" contenteditable="true" class="form-textarea prompt-display" role="textbox" aria-label="Prompt final generado" aria-multiline="true">
+                            El prompt generado aparecerá aquí…
+                        </div>
+                        <div id="promptQualityMetrics" class="prompt-quality-metrics" aria-live="polite"></div>
+                    </div>
+
+                    <!-- Variaciones -->
+                    <div class="card" style="margin-bottom: var(--spacing-xl);">
+                        <h3
+                            style="margin: 0 0 var(--spacing-md) 0; font-size: 1rem; font-weight: 600; color: var(--primary-dark);">
+                            <i class="fas fa-layer-group"></i>
+                            Variaciones
+                        </h3>
+                        <div class="flex gap-sm mb-md">
+                            <input type="text" id="newVariationName" name="newVariationName" class="form-input" style="flex: 1;" autocomplete="off"
+                                placeholder="Nombre de la variación">
+                            <button type="button" id="addVariationBtn" class="btn btn-success btn-sm">
+                                <i class="fas fa-plus"></i>
+                                Añadir
+                            </button>
+                        </div>
+                        <div id="variationsList">
+                            <!-- Las variaciones se mostrarán aquí -->
+                        </div>
+                    </div>
+
+                    <!-- Notas -->
+                    <div class="form-group" style="margin-bottom: var(--spacing-xl);">
+                        <label for="promptNotes" class="form-label">
+                            <i class="fas fa-sticky-note"></i>
+                            Notas
+                        </label>
+                        <textarea id="promptNotes" name="promptNotes" class="form-textarea auto-resize"
+                            placeholder="Notas adicionales, ideas, mejoras, etc."></textarea>
+                    </div>
+
+                    <!-- Información meta (oculta por defecto) -->
+                    <div id="form-meta-info" class="card hidden"
+                        style="background: var(--bg-secondary); margin-bottom: var(--spacing-xl);">
+                        <h3 style="margin: 0 0 var(--spacing-md) 0; font-size: 1rem; font-weight: 600;">Información del
+                            Prompt</h3>
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md); font-size: 0.875rem; color: var(--text-secondary);">
+                            <div>
+                                <strong>ID:</strong>
+                                <span id="promptIdDisplay">N/A</span>
+                            </div>
+                            <div>
+                                <strong>Creado:</strong>
+                                <span id="promptCreatedDate">N/A</span>
+                            </div>
+                            <div>
+                                <strong>Modificado:</strong>
+                                <span id="promptModifiedDate">N/A</span>
+                            </div>
+                            <div>
+                                <strong>Usado:</strong>
+                                <span id="promptUsageCount">0</span> veces
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acciones del formulario -->
+                    <div class="flex justify-between items-center"
+                        style="padding-top: var(--spacing-lg); border-top: 1px solid var(--border-light);">
+                        <button type="button" id="clearFormBtn" class="btn btn-secondary">
+                            <i class="fas fa-eraser"></i>
+                            Limpiar Formulario
+                        </button>
+                        <button type="submit" id="savePromptBtn" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i>
+                            Guardar en Biblioteca
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Sección Gestionar -->
+        <section id="manageTagsCategoriesSection" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-cogs"></i>
+                        Gestionar Etiquetas, Categorías y Municipios
+                    </h2>
+                </div>
+
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--spacing-xl);">
+                    <!-- Etiquetas -->
+                    <div class="card">
+                        <h3 class="card-title">
+                            <i class="fas fa-tags"></i>
+                            Etiquetas
+                        </h3>
+                        <div id="manageTagsList" style="max-height: 400px; overflow-y: auto;">
+                            <!-- Se cargará dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Categorías -->
+                    <div class="card">
+                        <h3 class="card-title">
+                            <i class="fas fa-folder-open"></i>
+                            Categorías
+                        </h3>
+                        <div id="manageCategoriesList" style="max-height: 400px; overflow-y: auto;">
+                            <!-- Se cargará dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Municipios -->
+                    <div class="card">
+                        <h3 class="card-title">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Municipios
+                        </h3>
+                        <div class="flex gap-sm mb-md">
+                            <input type="text" id="newMunicipioInput" name="newMunicipio" class="form-input" style="flex: 1;" autocomplete="off"
+                                placeholder="Nuevo municipio">
+                            <button id="addMunicipioBtn" class="btn btn-success btn-sm">
+                                <i class="fas fa-plus"></i>
+                                Añadir
+                            </button>
+                        </div>
+                        <div id="manageMunicipiosList" style="max-height: 400px; overflow-y: auto;">
+                            <!-- Se cargará dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección Guía -->
+        <section id="exampleGuideSection" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-lightbulb"></i>
+                        Guía para Crear Prompts Efectivos
+                    </h2>
+                    <div class="flex gap-sm">
+                        <button id="expandAllAccordion" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-expand-arrows-alt"></i>
+                            Expandir Todo
+                        </button>
+                        <button id="collapseAllAccordion" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-compress-arrows-alt"></i>
+                            Contraer Todo
+                        </button>
+                    </div>
+                </div>
+
+                <div id="guideAccordion">
+                    <!-- Rol/Perspectiva -->
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <h4><i class="fas fa-user-tie"></i> Rol/Perspectiva</h4>
+                            <i class="fas fa-chevron-down accordion-chevron"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <p><strong>Define quién debe ser la IA para esta tarea.</strong></p>
+                            <ul>
+                                <li><em>Específico:</em> "Actúa como un copywriter senior especializado en email
+                                    marketing B2B"</li>
+                                <li><em>Genérico:</em> "Actúa como un experto en marketing"</li>
+                                <li><em>Con credenciales:</em> "Actúa como un consultor financiero certificado con 15
+                                    años de experiencia"</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Contexto -->
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <h4><i class="fas fa-info-circle"></i> Contexto</h4>
+                            <i class="fas fa-chevron-down accordion-chevron"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <p><strong>Proporciona información relevante sobre la situación.</strong></p>
+                            <ul>
+                                <li><em>Situación:</em> "Una startup de tecnología necesita enviar emails de seguimiento
+                                    a clientes potenciales"</li>
+                                <li><em>Audiencia:</em> "Los destinatarios son CEOs de empresas medianas en el sector
+                                    retail"</li>
+                                <li><em>Objetivo:</em> "El objetivo es agendar una demo del producto"</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tarea -->
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <h4><i class="fas fa-tasks"></i> Tarea</h4>
+                            <i class="fas fa-chevron-down accordion-chevron"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <p><strong>Define claramente qué debe hacer la IA.</strong></p>
+                            <ul>
+                                <li><em>Acción específica:</em> "Escribe 3 líneas de asunto para emails de seguimiento"
+                                </li>
+                                <li><em>Con parámetros:</em> "Genera un email de máximo 150 palabras"</li>
+                                <li><em>Múltiple:</em> "Crea el email y sugiere el mejor momento para enviarlo"</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Formato -->
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <h4><i class="fas fa-list-alt"></i> Formato de Salida</h4>
+                            <i class="fas fa-chevron-down accordion-chevron"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <p><strong>Especifica cómo quieres recibir la respuesta.</strong></p>
+                            <ul>
+                                <li><em>Lista numerada:</em> "Presenta las opciones en una lista numerada"</li>
+                                <li><em>Tabla:</em> "Organiza la información en una tabla con columnas: Opción, Pros,
+                                    Contras"</li>
+                                <li><em>JSON:</em> "Devuelve el resultado en formato JSON con los campos: titulo,
+                                    contenido, categoria"</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tono -->
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <h4><i class="fas fa-comment-dots"></i> Tono/Estilo</h4>
+                            <i class="fas fa-chevron-down accordion-chevron"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <p><strong>Define el estilo de comunicación.</strong></p>
+                            <ul>
+                                <li><em>Profesional:</em> "Usa un tono profesional pero amigable"</li>
+                                <li><em>Casual:</em> "Escribe de manera conversacional, como si fueras un amigo"</li>
+                                <li><em>Específico:</em> "Adopta el estilo de escritura de Seth Godin: directo,
+                                    provocativo y memorable"</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Restricciones -->
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <h4><i class="fas fa-exclamation-triangle"></i> Restricciones</h4>
+                            <i class="fas fa-chevron-down accordion-chevron"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <p><strong>Establece límites y qué evitar.</strong></p>
+                            <ul>
+                                <li><em>Longitud:</em> "Máximo 100 palabras" o "Entre 500-800 palabras"</li>
+                                <li><em>Contenido:</em> "No uses jerga técnica" o "Evita mencionar competidores"</li>
+                                <li><em>Formato:</em> "No uses viñetas" o "Incluye exactamente 3 párrafos"</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Ejemplo -->
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <h4><i class="fas fa-lightbulb"></i> Ejemplo</h4>
+                            <i class="fas fa-chevron-down accordion-chevron"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <p><strong>Muestra exactamente lo que esperas.</strong></p>
+                            <div
+                                style="background: var(--bg-secondary); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-md) 0; position: relative;">
+                                <button class="btn btn-icon btn-sm guide-copy-btn"
+                                    style="position: absolute; top: 8px; right: 8px;">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <pre
+                                    style="margin: 0; white-space: pre-wrap; font-family: 'Poppins', sans-serif; font-size: 1rem; line-height: 1.6;">Ejemplo de email de seguimiento:
+
+Asunto: ¿15 minutos para transformar tu inventario?
+
+Hola [Nombre],
+
+Hace una semana te contacté sobre cómo [Empresa] podría reducir en 30% los costos de inventario.
+
+¿Tienes 15 minutos esta semana para una demo rápida?
+
+Saludos,
+[Tu nombre]</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prompt Completo -->
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <h4><i class="fas fa-rocket"></i> Ejemplo de Prompt Completo</h4>
+                            <i class="fas fa-chevron-down accordion-chevron"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <p><strong>Aquí tienes un ejemplo completo:</strong></p>
+                            <div
+                                style="background: var(--bg-secondary); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-md) 0; position: relative;">
+                                <button class="btn btn-icon btn-sm guide-copy-btn"
+                                    style="position: absolute; top: 8px; right: 8px;">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <pre
+                                    style="margin: 0; white-space: pre-wrap; font-family: 'Poppins', sans-serif; font-size: 1rem; line-height: 1.6;">Actúa como un copywriter senior especializado en email marketing B2B con 10 años de experiencia.
+
+Contexto: Una startup de software de gestión de inventario necesita hacer seguimiento a CEOs de empresas retail medianas que mostraron interés inicial pero no han respondido en una semana.
+
+Tarea: Escribe un email de seguimiento que sea directo pero no agresivo, que recuerde el valor propuesto y solicite una reunión de 15 minutos.
+
+Formato: Email completo con asunto, saludo, cuerpo (máximo 3 párrafos) y cierre.
+
+Tono: Profesional pero amigable, confiado sin ser presuntuoso.
+
+Restricciones: Máximo 120 palabras en el cuerpo del email, usar [Nombre] y [Empresa] como placeholders.
+
+Ejemplo de estructura deseada:
+Asunto: [Línea de asunto llamativa]
+Hola [Nombre],
+[Párrafo 1: Recordatorio del contacto previo]
+[Párrafo 2: Valor específico]  
+[Párrafo 3: Call to action claro]
+[Cierre profesional]</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tips -->
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <h4><i class="fas fa-star"></i> Tips para Prompts Efectivos</h4>
+                            <i class="fas fa-chevron-down accordion-chevron"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <ul>
+                                <li><strong>Sé específico:</strong> Mejor "experto en marketing de contenidos para SaaS
+                                    B2B" que "experto en marketing"</li>
+                                <li><strong>Usa ejemplos:</strong> Muestra exactamente lo que quieres recibir</li>
+                                <li><strong>Itera:</strong> Prueba diferentes versiones y mejora basándote en los
+                                    resultados</li>
+                                <li><strong>Contexto relevante:</strong> Solo incluye información que realmente afecte
+                                    la respuesta</li>
+                                <li><strong>Instrucciones claras:</strong> Una tarea por prompt funciona mejor que
+                                    múltiples tareas</li>
+                                <li><strong>Formato consistente:</strong> Usa el mismo formato para prompts similares
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección Plantillas -->
+        <section id="templatesSection" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-shapes"></i>
+                        Plantillas reutilizables
+                    </h2>
+                    <div class="flex gap-sm">
+                        <div class="flex items-center gap-sm" style="margin-right: var(--spacing-lg);">
+                            <label class="flex items-center gap-sm" title="Cómo aplicar al campo del formulario">
+                                <input type="radio" name="templateApplyMode" id="templateApplyModeReplace" checked>
+                                <span>Reemplazar</span>
+                            </label>
+                            <label class="flex items-center gap-sm">
+                                <input type="radio" name="templateApplyMode" id="templateApplyModeAppend">
+                                <span>Agregar al final</span>
+                            </label>
+                        </div>
+                        <button id="extractTemplatesFromLibraryBtn" class="btn btn-secondary btn-sm"
+                            title="Analiza tus prompts guardados y crea plantillas">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            Extraer desde biblioteca
+                        </button>
+                        <button id="importTemplatesFromJsonBtn" class="btn btn-info btn-sm"
+                            title="Sube un JSON exportado para extraer plantillas">
+                            <i class="fa-solid fa-file-import"></i>
+                            Importar JSON para extraer
+                        </button>
+                        <input type="file" id="templateJsonFileInput" name="templateJsonFile" accept=".json" class="hidden" aria-label="Importar JSON de plantillas">
+                    </div>
+                </div>
+
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--spacing-xl);">
+                    <!-- Roles -->
+                    <div class="card template-category-card">
+                        <div class="template-category-header">
+                            <h3>
+                                <i class="fas fa-user-tie"></i>
+                                Rol/Perspectiva
+                            </h3>
+                        </div>
+                        <div class="template-category-body">
+                            <div class="template-input-section">
+                                <div class="form-group">
+                                    <input type="text" id="newRoleName" name="newRoleName" class="form-input" aria-label="Nombre de la plantilla de rol" autocomplete="off"
+                                        placeholder="Nombre de la plantilla (opcional)">
+                                </div>
+                                <div class="form-group">
+                                    <textarea id="newRoleText" name="newRoleText" class="form-textarea" aria-label="Texto del rol/perspectiva"
+                                        placeholder="Texto del rol/perspectiva"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <button id="addRoleTemplateBtn" class="btn btn-success btn-sm">
+                                        <i class="fas fa-plus"></i>
+                                        Añadir plantilla
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="template-list-divider">Plantillas guardadas</div>
+                            <div id="rolesTemplatesList" class="template-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- Tono/Estilo -->
+                    <div class="card template-category-card">
+                        <div class="template-category-header">
+                            <h3>
+                                <i class="fas fa-comment-dots"></i>
+                                Tono/Estilo
+                            </h3>
+                        </div>
+                        <div class="template-category-body">
+                            <div class="template-input-section">
+                                <div class="form-group">
+                                    <input type="text" id="newToneName" name="newToneName" class="form-input" aria-label="Nombre de la plantilla de tono" autocomplete="off"
+                                        placeholder="Nombre de la plantilla (opcional)">
+                                </div>
+                                <div class="form-group">
+                                    <textarea id="newToneText" name="newToneText" class="form-textarea" aria-label="Texto del tono/estilo"
+                                        placeholder="Texto del tono/estilo"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <button id="addToneTemplateBtn" class="btn btn-success btn-sm">
+                                        <i class="fas fa-plus"></i>
+                                        Añadir plantilla
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="template-list-divider">Plantillas guardadas</div>
+                            <div id="tonesTemplatesList" class="template-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- Restricciones/Limitaciones -->
+                    <div class="card template-category-card">
+                        <div class="template-category-header">
+                            <h3>
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Restricciones/Limitaciones
+                            </h3>
+                        </div>
+                        <div class="template-category-body">
+                            <div class="template-input-section">
+                                <div class="form-group">
+                                    <input type="text" id="newConstraintName" name="newConstraintName" class="form-input" aria-label="Nombre de la plantilla de restricciones" autocomplete="off"
+                                        placeholder="Nombre de la plantilla (opcional)">
+                                </div>
+                                <div class="form-group">
+                                    <textarea id="newConstraintText" name="newConstraintText" class="form-textarea" aria-label="Texto de restricciones/limitaciones"
+                                        placeholder="Texto de restricciones/limitaciones"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <button id="addConstraintTemplateBtn" class="btn btn-success btn-sm">
+                                        <i class="fas fa-plus"></i>
+                                        Añadir plantilla
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="template-list-divider">Plantillas guardadas</div>
+                            <div id="constraintsTemplatesList" class="template-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer moderno -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Información Legal</h4>
+                <p>&copy; 2025 Mi Gestor de Prompts AI.<br>Todos los derechos reservados.<br>Marca registrada por Javier
+                    Valencia.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Contacto</h4>
+                <p>Puedes contactarme:</p>
+                <div class="footer-social">
+                    <a href="https://www.linkedin.com/in/javier-andres-valencia-moreno/" target="_blank"
+                        rel="noopener noreferrer" aria-label="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://wa.me/573227500807" target="_blank" rel="noopener noreferrer"
+                        aria-label="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="https://www.instagram.com/javisolucionez/" target="_blank" rel="noopener noreferrer"
+                        aria-label="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Ubicación</h4>
+                <p>Cúcuta, Norte de Santander, Colombia<br>Calle 10 # 5-50</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modales -->
+    <!-- Modal de eliminación -->
+    <div id="deleteConfirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirmar Eliminación</h3>
+                <button class="close-button">&times;</button>
+            </div>
+            <p>¿Estás seguro de que quieres eliminar el prompt "<span id="deletePromptName"
+                    style="font-weight: 600;"></span>"?</p>
+            <div class="flex justify-between mt-lg">
+                <button id="cancelDeleteBtn" class="btn btn-secondary">Cancelar</button>
+                <button id="confirmDeleteBtn" class="btn btn-danger">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de exportación -->
+    <div id="exportModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Exportar Prompts</h3>
+                <button class="close-button">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="exportTextArea" class="form-label">Datos JSON:</label>
+                <textarea id="exportTextArea" name="exportTextArea" class="form-textarea" rows="15" readonly
+                    style="font-family: 'Poppins', sans-serif; font-size: 0.875rem; line-height: 1.5;"></textarea>
+            </div>
+            <div class="flex justify-between">
+                <div class="flex gap-sm">
+                    <button id="copyExportBtn" class="btn btn-secondary">
+                        <i class="fas fa-copy"></i>
+                        Copiar
+                    </button>
+                    <button id="downloadExportBtn" class="btn btn-primary">
+                        <i class="fas fa-download"></i>
+                        Descargar
+                    </button>
+                </div>
+                <button id="closeExportModalBtn" class="btn btn-secondary">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de importación -->
+    <div id="importModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Importar Prompts</h3>
+                <button class="close-button">&times;</button>
+            </div>
+
+            <div class="form-group">
+                <label class="flex items-center gap-sm">
+                    <input type="checkbox" id="importMerge" name="importMerge" checked>
+                    <span>Fusionar con prompts existentes (recomendado)</span>
+                </label>
+                <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: var(--spacing-xs);">
+                    Si está marcado, los prompts importados se combinarán con los existentes. Si no, reemplazarán todos
+                    los prompts actuales.
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label for="importFile" class="form-label">Subir archivo JSON:</label>
+                <input type="file" id="importFile" name="importFile" class="form-input" accept=".json">
+            </div>
+
+            <div style="text-align: center; margin: var(--spacing-md) 0; color: var(--text-muted);">- O -</div>
+
+            <div class="form-group">
+                <label for="importTextArea" class="form-label">Pegar JSON:</label>
+                <textarea id="importTextArea" name="importTextArea" class="form-textarea" rows="10" autocomplete="off"
+                    placeholder="Pega aquí el JSON exportado…"
+                    style="font-family: 'Poppins', sans-serif; font-size: 0.875rem; line-height: 1.5;"></textarea>
+            </div>
+
+            <div id="importError" class="hidden"
+                style="background: #fef2f2; color: #dc2626; padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-md) 0; border-left: 4px solid #dc2626;">
+            </div>
+
+            <div class="flex justify-between">
+                <button id="cancelImportBtn" class="btn btn-secondary">Cancelar</button>
+                <button id="confirmImportBtn" class="btn btn-primary">
+                    <i class="fas fa-upload"></i>
+                    Importar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de placeholders -->
+    <div id="placeholderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Rellenar Placeholders</h3>
+                <button class="close-button">&times;</button>
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: var(--spacing-lg);">Este prompt contiene placeholders.
+                Rellena los campos para personalizar el texto:</p>
+
+            <form id="placeholderForm" style="margin-bottom: var(--spacing-lg);">
+                <!-- Los campos se generarán dinámicamente -->
+            </form>
+
+            <div class="form-group">
+                <label class="form-label">Vista previa:</label>
+                <div id="finalPlaceholderTextPreview"
+                    style="background: var(--bg-secondary); padding: var(--spacing-md); border-radius: var(--radius-md); white-space: pre-wrap; max-height: 200px; overflow-y: auto; font-family: 'Poppins', sans-serif; font-size: 1rem; line-height: 1.6;">
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <button id="cancelPlaceholderBtn" class="btn btn-secondary">Cancelar</button>
+                <button id="copyPlaceholderResultBtn" class="btn btn-primary">
+                    <i class="fas fa-copy"></i>
+                    Copiar Resultado
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de editar etiqueta/categoría -->
+    <div id="editTagCatModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Editar <span id="editTagCatType"></span></h3>
+                <button class="close-button">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Valor actual:</label>
+                <div style="background: var(--bg-secondary); padding: var(--spacing-sm); border-radius: var(--radius-md); color: var(--text-primary);"
+                    id="editTagCatOldValue"></div>
+            </div>
+            <div class="form-group">
+                <label for="editTagCatNewValue" class="form-label">Nuevo valor:</label>
+                <input type="text" id="editTagCatNewValue" name="editTagCatNewValue" class="form-input" autocomplete="off">
+            </div>
+            <input type="hidden" id="editTagCatIsCategory">
+            <input type="hidden" id="editTagCatIsMunicipio">
+            <div class="flex justify-between">
+                <button id="cancelEditTagCatBtn" class="btn btn-secondary">Cancelar</button>
+                <button id="confirmEditTagCatBtn" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de editar plantilla -->
+    <div id="editTemplateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Editar plantilla</h3>
+                <button class="close-button">&times;</button>
+            </div>
+            <input type="hidden" id="editTemplateId">
+            <input type="hidden" id="editTemplateCategory">
+            <div class="form-group">
+                <label class="form-label">Categoría</label>
+                <div id="editTemplateCategoryLabel"
+                    style="background: var(--bg-secondary); padding: var(--spacing-sm); border-radius: var(--radius-md); color: var(--text-primary);">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="editTemplateName" class="form-label">Nombre</label>
+                <input type="text" id="editTemplateName" name="editTemplateName" class="form-input" autocomplete="off"
+                    placeholder="Nombre de la plantilla (opcional)">
+            </div>
+            <div class="form-group">
+                <label for="editTemplateText" class="form-label">Texto</label>
+                <textarea id="editTemplateText" name="editTemplateText" class="form-textarea" rows="8"></textarea>
+            </div>
+            <div class="flex justify-between">
+                <button id="cancelEditTemplateBtn" class="btn btn-secondary">Cancelar</button>
+                <button id="confirmEditTemplateBtn" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de previsualización de plantilla -->
+    <div id="previewTemplateModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Previsualizar plantilla</h3>
+                <button class="close-button">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Categoría</label>
+                <div id="previewTemplateCategory"
+                    style="background: var(--bg-secondary); padding: var(--spacing-sm); border-radius: var(--radius-md);">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nombre</label>
+                <div id="previewTemplateName" style="color: var(--primary-dark); font-weight:600;"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Contenido</label>
+                <div id="previewTemplateText"
+                    style="white-space: pre-wrap; background: var(--bg-secondary); padding: var(--spacing-md); border-radius: var(--radius-md); max-height: 60vh; overflow:auto;">
+                </div>
+            </div>
+            <div class="flex justify-between">
+                <button id="closePreviewTemplateBtn" class="btn btn-secondary">Cerrar</button>
+                <div class="flex gap-sm">
+                    <button id="previewApplyBtn" class="btn btn-success">
+                        <i class="fas fa-check"></i>
+                        Aplicar al formulario
+                    </button>
+                    <button id="previewGoTemplatesBtn" class="btn btn-info">
+                        <i class="fas fa-shapes"></i>
+                        Ver todas las plantillas
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de previsualización de prompt -->
+    <div id="previewPromptModal" class="modal">
+        <div class="modal-content" style="max-width: 1000px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="previewPromptTitle">Previsualizar prompt</h3>
+                <button class="close-button">&times;</button>
+            </div>
+            <div class="form-group">
+                <div id="previewPromptMeta" class="flex gap-md flex-wrap text-muted"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Contenido</label>
+                <div id="previewPromptContent" class="bg-secondary-container prompt-display"
+                    style="max-height: 65vh; overflow:auto;">
+                </div>
+            </div>
+            <div class="flex justify-between">
+                <button id="closePreviewPromptBtn" class="btn btn-secondary">Cerrar</button>
+                <div class="flex gap-sm">
+                    <button id="previewPromptEditBtn" class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                        Editar
+                    </button>
+                    <button id="previewPromptFillBtn" class="btn btn-warning">
+                        <i class="fas fa-wand-magic-sparkles"></i>
+                        Rellenar placeholders
+                    </button>
+                    <button id="previewPromptCopyBtn" class="btn btn-info">
+                        <i class="fas fa-copy"></i>
+                        Copiar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Entry Point -->
+    <script src="app.js"></script>
+
+    <!-- GSAP for Block Reveal Animation + ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script>
+        // Block Reveal Animation + Scroll Animations
+        document.addEventListener('DOMContentLoaded', function () {
+            // Wait for GSAP to be ready
+            if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                // Register ScrollTrigger plugin
+                gsap.registerPlugin(ScrollTrigger);
+
+                // Initial state - hide text
+                gsap.set('.hero-title, .hero-subtitle, .hero-tagline', { opacity: 0 });
+
+                const tl = gsap.timeline({ delay: 0.3 });
+
+                // First line - "Gestor de Prompts"
+                tl.to('.reveal-text:first-child .reveal-block', {
+                    scaleX: 1,
+                    duration: 0.5,
+                    ease: 'power2.inOut'
+                })
+                    .to('.hero-title', { opacity: 1, duration: 0.01 })
+                    .to('.reveal-text:first-child .reveal-block', {
+                        scaleX: 0,
+                        transformOrigin: 'right',
+                        duration: 0.4,
+                        ease: 'power2.inOut'
+                    })
+                    // Second line - "AI v6"
+                    .to('.reveal-text-delay .reveal-block', {
+                        scaleX: 1,
+                        duration: 0.4,
+                        ease: 'power2.inOut'
+                    }, '-=0.15')
+                    .to('.hero-subtitle', { opacity: 1, duration: 0.01 })
+                    .to('.reveal-text-delay .reveal-block', {
+                        scaleX: 0,
+                        transformOrigin: 'right',
+                        duration: 0.35,
+                        ease: 'power2.inOut'
+                    })
+                    // Tagline fade in
+                    .to('.hero-tagline', {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.5,
+                        ease: 'power2.out'
+                    }, '-=0.15');
+
+                // Set initial position for tagline
+                gsap.set('.hero-tagline', { y: 15 });
+
+                // ========================================
+                // SCROLL TRIGGER ANIMATIONS FOR CONTENT
+                // ========================================
+
+                // Animate cards and filters on scroll
+                function animateContentOnScroll() {
+                    // Animate the main card containers
+                    gsap.utils.toArray('.section.active .card').forEach((card, index) => {
+                        gsap.from(card, {
+                            scrollTrigger: {
+                                trigger: card,
+                                start: 'top 90%',
+                                toggleActions: 'play none none none'
+                            },
+                            y: 30,
+                            opacity: 0,
+                            duration: 0.5,
+                            delay: index * 0.1,
+                            ease: 'power2.out'
+                        });
+                    });
+
+                    // Animate prompt cards in library grid
+                    gsap.utils.toArray('.section.active .prompt-card').forEach((card, index) => {
+                        gsap.from(card, {
+                            scrollTrigger: {
+                                trigger: card,
+                                start: 'top 95%',
+                                toggleActions: 'play none none none'
+                            },
+                            y: 25,
+                            opacity: 0,
+                            duration: 0.4,
+                            delay: index * 0.05,
+                            ease: 'power2.out'
+                        });
+                    });
+
+                    // Animate filters container
+                    const filters = document.querySelector('.section.active .filters-container');
+                    if (filters) {
+                        gsap.from(filters, {
+                            scrollTrigger: {
+                                trigger: filters,
+                                start: 'top 95%',
+                                toggleActions: 'play none none none'
+                            },
+                            y: 20,
+                            opacity: 0,
+                            duration: 0.4,
+                            ease: 'power2.out'
+                        });
+                    }
+                }
+
+                // Initial animation on page load
+                setTimeout(animateContentOnScroll, 800);
+
+                // ========================================
+                // TAB TRANSITION ANIMATIONS
+                // ========================================
+
+                // Store original tab click handler and enhance it
+                const navTabs = document.querySelectorAll('.nav-tab');
+
+                navTabs.forEach(tab => {
+                    tab.addEventListener('click', function (e) {
+                        const targetSectionId = this.dataset.section;
+                        const currentSection = document.querySelector('.section.active');
+                        const targetSection = document.getElementById(targetSectionId);
+
+                        if (!targetSection || currentSection === targetSection) return;
+
+                        // Prevent rapid clicking
+                        if (document.body.classList.contains('transitioning')) return;
+                        document.body.classList.add('transitioning');
+
+                        // Fade out current section
+                        gsap.to(currentSection, {
+                            opacity: 0,
+                            y: -15,
+                            duration: 0.25,
+                            ease: 'power2.in',
+                            onComplete: () => {
+                                // Switch sections
+                                currentSection.classList.remove('active');
+                                currentSection.style.opacity = '';
+                                currentSection.style.transform = '';
+
+                                targetSection.classList.add('active');
+
+                                // Set initial state for new section
+                                gsap.set(targetSection, { opacity: 0, y: 20 });
+
+                                // Fade in new section
+                                gsap.to(targetSection, {
+                                    opacity: 1,
+                                    y: 0,
+                                    duration: 0.35,
+                                    ease: 'power2.out',
+                                    onComplete: () => {
+                                        document.body.classList.remove('transitioning');
+                                        // Refresh ScrollTrigger for new content
+                                        ScrollTrigger.refresh();
+                                        // Animate new content
+                                        animateContentOnScroll();
+                                    }
+                                });
+                            }
+                        });
+                    });
+                });
+            }
+        });
+    </script>
+    </body>
+
+</html>

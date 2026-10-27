@@ -1,0 +1,6 @@
+/* Elevation for active dropdowns */
+.z-elevated {
+    z-index: 1002 !important;
+    position: relative;
+    border-color: var(--md-sys-color-primary) !important;
+}

@@ -1,0 +1,8 @@
+/* Accordion Chevron Rotation */
+.accordion-chevron {
+    transition: transform 0.3s ease;
+}
+
+.accordion-item.open .accordion-chevron {
+    transform: rotate(180deg);
+}

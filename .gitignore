@@ -1,0 +1,15 @@
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db
+.claude/settings.local.json
+# Export personal de prompts (datos personales)
+prompts_ai_export_all_*.json
+

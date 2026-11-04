@@ -1,7 +1,5 @@
 # Gestor-de-Prompts
 
----
-
 ## Autor
 
 <table>
